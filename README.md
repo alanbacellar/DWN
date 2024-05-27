@@ -1,2 +1,2 @@
 # DWN
-**D**ifferentiable **W**eightless Neural **N**etworks
+### **D**ifferentiable **W**eightless Neural **N**etworks
