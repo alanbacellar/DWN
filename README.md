@@ -1,2 +1,2 @@
 # DWN
-**D**ifferentiable Weightless Neural Networks
+**D**ifferentiable **W**eightless Neural **N**etworks
