@@ -22,6 +22,7 @@ Requirements: PyTorch and CUDA.
 To quickly get started with DWN, here's an example using the MNIST dataset. Full training code is available in the [examples/mnist.py](examples/mnist.py) file.
 
 ```python
+import torch
 from torch import nn
 import torch_dwn as dwn
 
