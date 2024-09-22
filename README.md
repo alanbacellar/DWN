@@ -76,7 +76,7 @@ LUTLayer(
     alpha=None,         # Linear scalar for EFD. Defaults to a value based on `n`.
     beta=None,          # Exponential scalar for EFD. Defaults to a value based on `n`.
     ste=True,           # Whether to use Straight-Through Estimator (STE) for binarization.
-    clamp_luts=True,    # Clamps luts during training to [-1, 1] (for STE).
+    clamp_luts=True,    # Clamps LUTs during training to [-1, 1] (for STE).
     lm_tau=0.001        # Temperature parameter for softmax when using learnable mapping.
 )
 ```
