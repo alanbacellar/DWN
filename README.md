@@ -33,7 +33,7 @@ thermometer = dwn.DistributiveThermometer(3).fit(x_train)
 x_train = thermometer.binarize(x_train).flatten(start_dim=1)
 x_test = thermometer.binarize(x_test).flatten(start_dim=1)
 
-# Define the DWN model
+# Define the model
 model = nn.Sequential(
     dwn.LUTLayer(x_train.size(1), 2000, n=6, mapping='learnable'),
     dwn.LUTLayer(2000, 1000, n=6),
