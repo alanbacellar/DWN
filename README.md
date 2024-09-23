@@ -112,6 +112,10 @@ The EFD implementation in this repository improves upon the original paper's ver
 
 We recommend using **learnable mapping** only in the first layer for faster convergence with negligible accuracy differences. Using it in all layers requires fine-tuning of the softmax temperature in the backprop and may slow down training.
 
+### **Softmax Temperature in the GroupSum Layer**
+
+We highly recommend fine-tuning the softmax temperature in the GroupSum layer of the DWN model. This was observed to be crucial for achieving high accuracy, similar to the behavior observed in DiffLogicNet.
+
 ### **Model Architecture Design**
 
 DWN models benefit from **shallower architectures**, primarily due to the **learnable mapping** mechanism. With **random mapping**, deeper architectures are often needed to combine input features in later layers for better classification. However, **learnable mapping** allows this feature combination to happen earlier, making additional depth unnecessary.
