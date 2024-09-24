@@ -64,7 +64,6 @@ class LUTLayer(torch.nn.Module):
         # LUTs
         luts = torch.rand(output_size, 2**n, dtype=torch.float32)*2 - 1
         self.luts = torch.nn.Parameter(luts, requires_grad=True)
-        self.luts.is_lut = True # Set for HammingL2 Reguralization
         
     def forward(self, x):
         
