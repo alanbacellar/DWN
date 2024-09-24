@@ -44,7 +44,7 @@ class LUTLayer(torch.nn.Module):
 
         # Alpha and beta
         if alpha is None:
-            alpha = 0.5 * 0.75**n
+            alpha = 0.5 * 0.75**(n-1)
         if beta is None:
             beta = 0.25/0.75
         self.alpha = torch.tensor(alpha)
