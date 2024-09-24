@@ -25,7 +25,7 @@ setup(
     cmdclass={'build_ext': BuildExtension},
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
-    version="1.0.8",
+    version="1.0.9",
     author="Alan T. L. Bacellar",
     author_email="alanbacellar@gmail.com",
     description="Differentiable Weightless Neural Networks (DWN) PyTorch Module",
