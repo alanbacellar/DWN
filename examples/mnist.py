@@ -1,17 +1,24 @@
 import torch
 from torch import nn
 from torch.nn.functional import cross_entropy
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
 import torch_dwn as dwn
-import openml
 
-# Load dataset
-dataset = openml.datasets.get_dataset('mnist_784').get_data(dataset_format='array')
-features = torch.tensor(dataset[0][:, :-1], dtype=torch.float32)
-labels = torch.tensor(dataset[0][:, -1], dtype=torch.int64)
-x_train = features[:60000]
-y_train = labels[:60000]
-x_test = features[60000:]
-y_test = labels[60000:]
+# Load Data
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Lambda(lambda x: torch.flatten(x))  # Flatten the 28x28 image to 784
+])
+
+train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
+test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
+
+train_loader = DataLoader(dataset=train_dataset, batch_size=len(train_dataset), shuffle=True)
+test_loader = DataLoader(dataset=test_dataset, batch_size=len(test_dataset), shuffle=False)
+
+x_train, y_train = next(iter(train_loader))
+x_test, y_test = next(iter(test_loader))
 
 # Binarize with distributive thermometer
 thermometer = dwn.DistributiveThermometer(3).fit(x_train)
