@@ -8,7 +8,7 @@ import torch_dwn as dwn
 # Load Data
 transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Lambda(lambda x: torch.flatten(x))  # Flatten the 28x28 image to 784
+    transforms.Lambda(lambda x: torch.flatten(x))
 ])
 
 train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
