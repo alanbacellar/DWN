@@ -11,7 +11,7 @@
 pip install torch-dwn
 ```
 
-Requirements: PyTorch and CUDA.
+Requirements: CUDA and PyTorch(matching the CUDA version).
 
 ---
 
