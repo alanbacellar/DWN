@@ -35,33 +35,42 @@ model = model.cuda()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-2)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, gamma=0.1, step_size=14)
 
-def train(model, optimizer, scheduler, x_train, y_train, epochs, batch_size):
-    model.train()
+def evaluate(model, x_test, y_test):
+    model.eval()
+    with torch.no_grad():
+        pred = (model(x_test.cuda(device)).cpu()).argmax(dim=1).numpy()
+        acc = (pred == y_test.numpy()).sum() / y_test.shape[0]
+    return acc
+
+def train_and_evaluate(model, optimizer, scheduler, x_train, y_train, x_test, y_test, epochs, batch_size):
     n_samples = x_train.shape[0]
     
     for epoch in range(epochs):
+        model.train()
         permutation = torch.randperm(n_samples)
+        correct_train = 0
+        total_train = 0
+        
         for i in range(0, n_samples, batch_size):
             optimizer.zero_grad()
             
             indices = permutation[i:i+batch_size]
-            batch_x, batch_y = x_train[indices].cuda(), y_train[indices].cuda()
+            batch_x, batch_y = x_train[indices].cuda(device), y_train[indices].cuda(device)
             
             outputs = model(batch_x)
             loss = cross_entropy(outputs, batch_y)
             loss.backward()
             optimizer.step()
+            
+            pred_train = outputs.argmax(dim=1)
+            correct_train += (pred_train == batch_y).sum().item()
+            total_train += batch_y.size(0)
+        
+        train_acc = correct_train / total_train
         
         scheduler.step()
-        print(f'Epoch {epoch + 1}/{epochs}, Loss: {loss.item()}')
+        
+        test_acc = evaluate(model, x_test, y_test)
+        print(f'Epoch {epoch + 1}/{epochs}, Train Loss: {loss.item():.4f}, Train Accuracy: {train_acc:.4f}, Test Accuracy: {test_acc:.4f}')
 
-def evaluate(model, x_test, y_test):
-    model.eval()
-    with torch.no_grad():
-        pred = (model(x_test.cuda()).cpu()).argmax(dim=1).numpy()
-        acc = (pred == y_test.numpy()).sum() / y_test.shape[0]
-    return acc
-
-train(model, optimizer, scheduler, x_train, y_train, epochs=30, batch_size=32)
-acc = evaluate(model, x_test, y_test)
-print(f"Accuracy: {acc}")
+train_and_evaluate(model, optimizer, scheduler, x_train, y_train, x_test, y_test, epochs=30, batch_size=32)
