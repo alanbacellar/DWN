@@ -1,7 +1,7 @@
 
 # DWN: *Differentiable Weightless Neural Networks*
 
-📄 **Paper**: [ICML 2024](https://proceedings.mlr.press/v235/bacellar24a.html)
+📄 **Paper**: [ICML 2024](https://proceedings.mlr.press/v235/bacellar24a.html) | [Updated Version on arXiv](https://arxiv.org/pdf/2410.11112)
 
 ---
 
