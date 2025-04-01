@@ -64,7 +64,7 @@ __global__ void efd_cuda_backward_kernel(
     const torch::PackedTensorAccessor32<float, 2, torch::RestrictPtrTraits> luts,           // (num_luts, 2^n)
     const float alpha,
     const float beta,
-    const torch::PackedTensorAccessor32<float, 2, torch::RestrictPtrTraits> output_grad,    // (num_luts, n)
+    const torch::PackedTensorAccessor32<float, 2, torch::RestrictPtrTraits> output_grad,    // (batch_size, num_luts)
     torch::PackedTensorAccessor32<float, 2, torch::RestrictPtrTraits> input_grad,           // (batch_size, input_lenght) 
     torch::PackedTensorAccessor32<float, 2, torch::RestrictPtrTraits> luts_grad) {          // (num_luts, 2^n)
           
