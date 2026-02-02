@@ -40,7 +40,7 @@ if os.path.exists(cuda_dir):
 
 setup(
     name='torch_dwn',
-    version="1.1.0",
+    version="1.1.1",
     author="Alan T. L. Bacellar",
     author_email="alanbacellar@gmail.com",
     description="Differentiable Weightless Neural Networks (DWN) PyTorch Module",
