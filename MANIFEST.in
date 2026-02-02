@@ -1,1 +1,1 @@
-recursive-include src/torch_dwn/custom_operators *
+recursive-include src/torch_dwn *.cpp *.cu  *.gitkeep

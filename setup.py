@@ -9,28 +9,49 @@ cuda_dir = os.path.join('src', 'torch_dwn', 'custom_operators', 'cuda')
 
 ext_modules = []
 
-for filename in os.listdir(cpp_dir):
-    if filename[-3:] == 'cpp':
-        ext_modules.append(CppExtension(filename[:-3], [os.path.join(cpp_dir, filename)]))
+# C++
+if os.path.exists(cpp_dir):
+    for filename in os.listdir(cpp_dir):
+        if filename.endswith('.cpp'):
+            module_name = filename[:-4]
+            source_path = os.path.join(cpp_dir, filename)
+            ext_modules.append(
+                CppExtension(
+                    name=module_name, 
+                    sources=[source_path]
+                )
+            )
 
-for filename in os.listdir(cuda_dir):
-    if filename[-3:] == 'cpp':
-        module_name = filename[:-4]
-        kernel_filename = module_name + '_kernel.cu'
-        ext_modules.append(CUDAExtension(module_name, [os.path.join(cuda_dir, filename), os.path.join(cuda_dir, kernel_filename)]))
+# CUDA
+if os.path.exists(cuda_dir):
+    for filename in os.listdir(cuda_dir):
+        if filename.endswith('.cpp'):
+            module_name = filename[:-4]
+            kernel_filename = module_name + '_kernel.cu'
+            cpp_source = os.path.join(cuda_dir, filename)
+            cuda_source = os.path.join(cuda_dir, kernel_filename)
+            if os.path.exists(cuda_source):
+                ext_modules.append(
+                    CUDAExtension(
+                        name=module_name, 
+                        sources=[cpp_source, cuda_source]
+                    )
+                )
 
 setup(
     name='torch_dwn',
-    ext_modules=ext_modules,
-    cmdclass={'build_ext': BuildExtension},
-    package_dir={"": "src"},
-    packages=setuptools.find_packages(where="src"),
-    version="1.0.9",
+    version="1.1.0",
     author="Alan T. L. Bacellar",
     author_email="alanbacellar@gmail.com",
     description="Differentiable Weightless Neural Networks (DWN) PyTorch Module",
     url="https://github.com/alanbacellar/DWN",
+    package_dir={"": "src"},
+    packages=setuptools.find_packages(where="src"),
+    ext_modules=ext_modules,
+    cmdclass={'build_ext': BuildExtension},
+    
     install_requires=[
         'torch'
-    ]
+    ],
+    include_package_data=True,
 )
