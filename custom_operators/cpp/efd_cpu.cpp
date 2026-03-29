@@ -22,8 +22,14 @@ torch::Tensor efd_cpu_forward(
     auto luts_accessor = luts.accessor<float, 2>();
     auto output_accessor = output.accessor<float, 2>();
 
-    for (int64_t b = 0; b < batch_size; ++b) {
-        for (int64_t j = 0; j < num_luts; ++j) {
+    // Parallelize over batch * num_luts iterations
+    // Each thread computes a unique output element, so no race conditions
+    int64_t total_iterations = batch_size * num_luts;
+    at::parallel_for(0, total_iterations, 1, [&](int64_t start, int64_t end) {
+        for (int64_t idx = start; idx < end; ++idx) {
+            int64_t b = idx / num_luts;
+            int64_t j = idx % num_luts;
+            
             uint32_t addr = 0;
             for (int64_t l = 0; l < n; ++l) {
                 int64_t input_idx = mapping_accessor[j][l];
@@ -33,7 +39,7 @@ torch::Tensor efd_cpu_forward(
             }
             output_accessor[b][j] = luts_accessor[j][addr];
         }
-    }
+    });
 
     return output;
 }
@@ -61,20 +67,23 @@ std::vector<torch::Tensor> efd_cpu_backward(
     auto output_grad_accessor = output_grad.accessor<float, 2>();
     auto luts_grad_accessor = luts_grad.accessor<float, 2>();
 
-    // Compute LUT gradients
-    for (int64_t b = 0; b < batch_size; ++b) {
-        for (int64_t j = 0; j < num_luts; ++j) {
-            // Build address
-            uint32_t addr = 0;
-            for (int64_t l = 0; l < n; ++l) {
-                int64_t input_idx = mapping_accessor[j][l];
-                if (input_accessor[b][input_idx] > 0) {
-                    addr |= (1 << l);
+    // Parallelize over LUTs to avoid race conditions
+    // Each thread processes a different LUT (j), guaranteeing no conflicts
+    // when accumulating into luts_grad[j][addr]
+    at::parallel_for(0, num_luts, 1, [&](int64_t start_j, int64_t end_j) {
+        for (int64_t j = start_j; j < end_j; ++j) {
+            for (int64_t b = 0; b < batch_size; ++b) {
+                uint32_t addr = 0;
+                for (int64_t l = 0; l < n; ++l) {
+                    int64_t input_idx = mapping_accessor[j][l];
+                    if (input_accessor[b][input_idx] > 0) {
+                        addr |= (1 << l);
+                    }
                 }
+                luts_grad_accessor[j][addr] += output_grad_accessor[b][j];
             }
-            luts_grad_accessor[j][addr] += output_grad_accessor[b][j];
         }
-    }
+    });
 
     return {input_grad, luts_grad};
 }
@@ -107,7 +116,7 @@ std::vector<torch::Tensor> efd_backward(
     return efd_cpu_backward(input, mapping, luts, alpha, beta, output_grad);
 };
 
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
+PYBIND11_MODULE(efd_cpu, m) {
   m.def("forward", &efd_forward, "EFD CPU forward");
   m.def("backward", &efd_backward, "EFD CPU backward");
 }
