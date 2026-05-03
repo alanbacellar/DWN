@@ -3,13 +3,21 @@ try:
     from . import efd_cuda
     CUDA_AVAILABLE = True
 except ImportError:
-    CUDA_AVAILABLE = False
+    try:
+        import efd_cuda
+        CUDA_AVAILABLE = True
+    except ImportError:
+        CUDA_AVAILABLE = False
 
 try:
     from . import efd_cpu
     CPU_AVAILABLE = True
 except ImportError:
-    CPU_AVAILABLE = False
+    try:
+        import efd_cpu
+        CPU_AVAILABLE = True
+    except ImportError:
+        CPU_AVAILABLE = False
 
 from .mapping import layer_mapping, LearnableMapping
 from .utils import STEFunction
