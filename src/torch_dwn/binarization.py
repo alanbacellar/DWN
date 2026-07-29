@@ -23,7 +23,7 @@ class Thermometer:
     
     def binarize(self, x):
         if self.thresholds is None:
-            raise 'need to fit before calling apply'
+            raise Exception("need to fit before calling apply")
         if type(x) is not torch.Tensor:
             x = torch.tensor(x)
         x = x.unsqueeze(-1)

@@ -23,7 +23,7 @@ if os.path.exists(cpp_dir):
             )
 
 # CUDA
-if os.path.exists(cuda_dir):
+if os.path.exists(cuda_dir) and torch.cuda.is_available():
     for filename in os.listdir(cuda_dir):
         if filename.endswith('.cpp'):
             module_name = filename[:-4]

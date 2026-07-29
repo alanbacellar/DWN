@@ -1,25 +1,48 @@
 import torch
-if torch.cuda.is_available():
-    import efd_cuda
+try:
+    from . import efd_cuda
+    CUDA_AVAILABLE = True
+except ImportError:
+    try:
+        import efd_cuda
+        CUDA_AVAILABLE = True
+    except ImportError:
+        CUDA_AVAILABLE = False
+
+try:
+    from . import efd_cpu
+    CPU_AVAILABLE = True
+except ImportError:
+    try:
+        import efd_cpu
+        CPU_AVAILABLE = True
+    except ImportError:
+        CPU_AVAILABLE = False
+
 from .mapping import layer_mapping, LearnableMapping
 from .utils import STEFunction
 
 class EFDFunction(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x, mapping, luts, alpha, beta):
-        if x.is_cuda:
+        if x.is_cuda and CUDA_AVAILABLE:
             output = efd_cuda.forward(x, mapping, luts)
+        elif CPU_AVAILABLE:
+            output = efd_cpu.forward(x, mapping, luts)
         else:
-            raise "EFDFunction CPU not Implemented"
+            raise RuntimeError("Neither CUDA nor CPU implementation available for EFD operation")
         ctx.save_for_backward(x, mapping, luts, alpha, beta)
         return output
 
     @staticmethod
     def backward(ctx, output_grad):
-        if output_grad.is_cuda:
-            input_grad, luts_grad = efd_cuda.backward(*ctx.saved_tensors, output_grad.contiguous())
+        x, mapping, luts, alpha, beta = ctx.saved_tensors
+        if x.is_cuda and CUDA_AVAILABLE:
+            input_grad, luts_grad = efd_cuda.backward(x, mapping, luts, alpha.item(), beta.item(), output_grad.contiguous())
+        elif CPU_AVAILABLE:
+            input_grad, luts_grad = efd_cpu.backward(x, mapping, luts, alpha.item(), beta.item(), output_grad.contiguous())
         else:
-            raise "EFDFunction CPU not Implemented"
+            raise RuntimeError("Neither CUDA nor CPU implementation available for EFD operation")
         return input_grad, None, luts_grad, None, None
 
 class LUTLayer(torch.nn.Module):
