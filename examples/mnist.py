@@ -38,7 +38,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, gamma=0.1, step_size=14)
 def evaluate(model, x_test, y_test):
     model.eval()
     with torch.no_grad():
-        pred = (model(x_test.cuda(device)).cpu()).argmax(dim=1).numpy()
+        pred = (model(x_test.cuda()).cpu()).argmax(dim=1).numpy()
         acc = (pred == y_test.numpy()).sum() / y_test.shape[0]
     return acc
 
@@ -55,7 +55,7 @@ def train_and_evaluate(model, optimizer, scheduler, x_train, y_train, x_test, y_
             optimizer.zero_grad()
             
             indices = permutation[i:i+batch_size]
-            batch_x, batch_y = x_train[indices].cuda(device), y_train[indices].cuda(device)
+            batch_x, batch_y = x_train[indices].cuda(), y_train[indices].cuda()
             
             outputs = model(batch_x)
             loss = cross_entropy(outputs, batch_y)
